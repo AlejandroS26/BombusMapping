@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Distribution Map: Bombus and its Subgenera"
 output:
   word_document: default
   pdf_document: default
@@ -10,14 +10,6 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
-```{r}
-library('rgdal')
-library('dismo')
-library('raster')
-library('sp')
-library('maptools')
-
-```
 ```{r}
 #install.packages("tidyverse")
 install.packages('rJava')
@@ -32,7 +24,6 @@ install.packages('OpenStreetMap')
 
 
 ```{r}
-library('rgdal')
 library('dismo')
 library('raster')
 library('sp')
