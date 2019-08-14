@@ -1,0 +1,330 @@
+---
+title: "Distribution Map: Bombus and its Subgenera"
+output:
+  word_document: default
+  pdf_document: default
+  html_notebook: default
+
+
+```{r}
+library('rgdal')
+library('dismo')
+library('raster')
+library('sp')
+library('maptools')
+library('readr')
+library('ggplot2')
+library('ggmap')
+library('sf')
+
+```
+
+
+```{r}
+#saving file into a label and reading
+occ.data <- read.csv(file = "data/bombus_emu.csv")
+
+summary(occ.data)
+```
+
+```{r}
+dir.create(path = 'data')
+dir.create(path = 'output')
+
+```
+
+
+```{r}
+#shows properties of data, rows and columns
+dim(occ.data)
+#Column names
+colnames(occ.data)
+
+#bioclimatic data
+bioclim.data<- getData(name = 'worldclim',
+                       var = 'bio',
+                       res = 2.5,
+                       path = "data/")
+```
+
+
+```{r}
+#disregarding all nulled values for lon and lat
+clean.data <- subset(occ.data, !is.na(DarDecimalLatitude) & !is.na(DarDecimalLongitude))
+
+
+```
+```{r}
+
+dim(clean.data)
+clean.data
+
+```
+
+
+
+
+
+
+```{r}
+#Determining what the max and min geographical values of map are
+max.lat <- (max(clean.data$DarDecimalLatitude))
+min.lat <- (min(clean.data$DarDecimalLatitude))
+max.lon <- (max(clean.data$DarDecimalLongitude))
+min.lon <- (min(clean.data$DarDecimalLongitude))
+```
+```{r}
+#Display Values
+max.lat
+min.lon
+max.lon
+min.lat
+
+
+
+```
+```{r}
+#Establishing extent of map (will be able to plot only north american in later model)
+geo.extent <- extent(x = c(min.lon, max.lon, min.lat, max.lat))
+c(min.lon, max.lon, min.lat, max.lat)
+```
+
+
+```{r}
+#Using only collumns from lon and lat
+loc.data <- clean.data [, c('DarDecimalLongitude', 'DarDecimalLatitude')]
+loc.data
+
+```
+
+```{r}
+data("wrld_simpl")
+
+plot(wrld_simpl,
+     xlim = c(min.lon, max.lon),
+     ylim = c(min.lat, max.lat ), 
+     axes = TRUE,
+     col = 'grey95')
+
+#adding points on to map
+points(x = loc.data$DarDecimalLongitude,
+       y = loc.data$DarDecimalLatitude,
+       col = 'olivedrab',
+       pch = 20,
+       cex = 0.75)
+#box around map
+box()
+```
+
+
+```{r}
+bc.model <- bioclim(x = bioclim.data, p = loc.data)
+
+predict.presence <- dismo::predict(object = bc.model, x = bioclim.data, ext = geo.extent)
+```
+```{r}
+#plot base map
+plot(wrld_simpl,
+     xlim = c(min.lon, max.lon),
+     ylim = c(min.lat, max.lat),
+     axes = TRUE,
+     col = "grey95")
+
+#adding model probabilities
+plot(predict.presence, add = TRUE)
+ 
+#redrawing country borders
+plot(wrld_simpl, add = TRUE, border = "grey6")
+
+#adding OG observations
+points(x = loc.data$DarDecimalLongitude,
+       y = loc.data$DarDecimalLatitude,
+       col = 'olivedrab',
+       pch = 20,
+       cex = 0.75)
+```
+```{r}
+sep.data <- clean.data [, c('Taxon', 'DarDecimalLongitude', 'DarDecimalLatitude')]
+
+```
+```{r}
+pyro.data <- read.csv(file = 'data/Pyrobombus_emu.csv')
+
+locpyro.data <- pyro.data [, c('DarDecimalLongitude', 'DarDecimalLatitude')]
+
+locpyro.data
+```
+```{r}
+plot(wrld_simpl,
+     xlim = c(min.lon, max.lon),
+     ylim = c(min.lat, max.lat),
+     axes = TRUE,
+     col = "grey95")
+
+plot(wrld_simpl, add = TRUE, border = "grey5")
+
+points(x = clean.data$DarDecimalLongitude,
+       y = clean.data$DarDecimalLatitude,
+       col = 'olivedrab',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locpyro.data$DarDecimalLongitude,
+       y = locpyro.data$DarDecimalLatitude,
+       col = 'red',
+       pch = 20,
+       cex = 0.75)
+```
+```{r}
+Agro.data <- read.csv(file = 'data/Agro_emu.csv')
+Alpigeno.data <- read.csv(file = 'data/Alpigeno_emu.csv')
+Alpino.data <- read.csv(file = 'data/Alpino_emu.csv')
+Bombias.data <- read.csv(file = 'data/Bombias_emu.csv')
+BombusSub.data <- read.csv(file = 'data/BombusSub_emu.csv')
+Brachy.data <- read.csv (file = 'data/Brachycephalobombus_emu.csv')
+Coccineo.data <- read.csv(file = 'data/Coccineo_emu.csv')
+Confusii.data <- read.csv(file = 'data/Confusii_emu.csv')
+Crotchii.data <- read.csv(file = 'data/Crotchii_emu.csv')
+Collumano.data <- read.csv(file = 'data/Collumano_emu.csv')
+Diverso.data <- read.csv(file = 'data/Diverso_emu.csv')
+Dasy.data <- read.csv(file = 'data/Dasy_emu.csv')
+Fervido.data <- read.csv(file = 'data/Fervido_emu.csv')
+Thoraco.data <- read.csv(file = 'data/Thoraco_emu.csv')
+```
+```{r}
+#Disregarding all na values in each data frame
+Alpigeno.data <- subset(Alpigeno.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locAlpigen.data <- Alpigeno.data [, c('DarLongitude', 'DarLatitude')]
+locAlpigen.data
+
+Agro.data <- subset(Agro.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locAgro.data <- Agro.data [, c('DarLongitude', 'DarLatitude')]
+
+Alpino.data <- subset(Alpino.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locAlpino.data <- Alpino.data [, c('DarLongitude', 'DarLatitude')]
+
+Bombias.data <- subset(Bombias.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locBombias.data <- Bombias.data [, c('DarLongitude', 'DarLatitude')]
+
+
+BombusSub.data <- subset(BombusSub.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locBombus.data <- BombusSub.data [, c('DarLongitude', 'DarLatitude')]
+
+
+Brachy.data <- subset(Brachy.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locBrachy.data <- Brachy.data [, c('DarLongitude', 'DarLatitude')]
+
+#skipped Coccineo
+
+Collum.data <- subset(Collumano.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locCollum.data <- Collum.data [, c('DarLongitude', 'DarLatitude')]
+
+Thoraco.data <- subset(Thoraco.data, !is.na(DarLatitude) & !is.na(DarLongitude))
+locThoraco.data <- Thoraco.data [, c('DarLongitude', 'DarLatitude')]
+```
+```{r}
+plot(wrld_simpl,
+     xlim = c(min.lon, max.lon),
+     ylim = c(min.lat, max.lat),
+     axes = TRUE,
+     col = "grey95")
+
+plot(wrld_simpl, add = TRUE, border = "grey5")
+
+#points(x = clean.data$DarDecimalLongitude,
+#      y = clean.data$DarDecimalLatitude,
+#     col = 'olivedrab',
+#    pch = 20,
+#   cex = 0.75)
+
+points(x = locpyro.data$DarDecimalLongitude,
+       y = locpyro.data$DarDecimalLatitude,
+       col = 'red',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locAlpigen.data$DarLongitude,
+       y = locAlpigen.data$DarLatitude,
+       col = 'yellow',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locAgro.data$DarLongitude,
+       y = locAgro.data$DarLatitude,
+       col = 'pink',
+       pch = 20,
+       cex = 0.75)
+ 
+points(x = locAlpino.data$DarLongitude,
+       y = locAlpino.data$DarLatitude,
+       col = 'blue',
+       pch = 20,
+       cex = 0.75)
+
+
+points(x = locBombias.data$DarLongitude,
+       y = locBombias.data$DarLatitude,
+       col = 'purple',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locBombus.data$DarLongitude,
+       y = locBombus.data$DarLatitude,
+       col = 'grey',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locBrachy.data$DarLongitude,
+       y = locBrachy.data$DarLatitude,
+       col = 'olivedrab',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locCollum.data$DarLongitude,
+       y = locCollum.data$DarLatitude,
+       col = 'black',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locThoraco.data$DarLongitude,
+       y = locThoraco.data$DarLatitude,
+       col = 'green',
+       pch = 20,
+       cex = 0.75)
+```
+```{r}
+plot(wrld_simpl,
+     xlim = c(-170, -39),
+     ylim = c(11, 72),
+     axes = TRUE,
+     col = "grey95")
+points(x = locpyro.data$DarDecimalLongitude,
+       y = locpyro.data$DarDecimalLatitude,
+       col = 'red',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locBombus.data$DarLongitude,
+       y = locBombus.data$DarLatitude,
+       col = 'grey',
+       pch = 20,
+       cex = 0.75)
+points(x = locCollum.data$DarLongitude,
+       y = locCollum.data$DarLatitude,
+       col = 'black',
+       pch = 20,
+       cex = 0.75)
+
+points(x = locThoraco.data$DarLongitude,
+       y = locThoraco.data$DarLatitude,
+       col = 'green',
+       pch = 20,
+       cex = 0.75) 
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
